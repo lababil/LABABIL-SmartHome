@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LABABIL SmartHome</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1976d2">
+  <style>
+    :root {
+      --primary: #1976d2;
+      --primary-dark: #0d47a1;
+      --bg: #f5f6fa;
+      --card-bg: #fff;
+      --text-dark: #2c3e50;
+      --text-light: #7f8c8d;
+    }
+    body.dark {
+      --primary: #00c6ff;
+      --primary-dark: #0072ff;
+      --bg: #121212;
+      --card-bg: #1e1e1e;
+      --text-dark: #ecf0f1;
+      --text-light: #95a5a6;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      transition: background 0.4s;
+    }
+    .container {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      animation: fadeIn 0.6s ease-out;
+      transition: background 0.4s, color 0.4s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .logo {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 16px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: bold;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+      transition: background 0.4s;
+    }
+    .app-title { text-align: center; font-size: 24px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; transition: color 0.4s; }
+    .app-subtitle { text-align: center; font-size: 14px; color: var(--text-light); margin-bottom: 28px; transition: color 0.4s; }
+    .input-group { position: relative; margin-bottom: 28px; }
+    .input-field {
+      width: 100%; border: none; border-bottom: 2px solid #ccc;
+      padding: 14px 10px 6px; font-size: 16px; background: transparent;
+      color: var(--text-dark); transition: border-color 0.3s, color 0.4s;
+    }
+    .input-field:focus { outline: none; border-color: var(--primary); }
+    .input-label {
+      position: absolute; top: 14px; left: 10px; font-size: 16px; color: #888;
+      pointer-events: none; transition: 0.3s ease all;
+    }
+    .input-field:focus + .input-label,
+    .input-field:not(:placeholder-shown) + .input-label {
+      top: -6px; left: 8px; font-size: 12px; color: var(--primary);
+    }
+    .btn {
+      width: 100%; padding: 14px; border: none; border-radius: 8px;
+      background: var(--primary); color: #fff; font-size: 16px;
+      font-weight: 600; cursor: pointer; transition: background 0.3s;
+    }
+    .btn:hover { background: var(--primary-dark); }
+    .status { margin-top: 18px; padding: 12px; border-radius: 6px; font-size: 14px; display: none; }
+    .status.success { background: #eafaf1; color: #27ae60; }
+    .status.error { background: #fdecea; color: #e74c3c; }
+    body.dark .status.success { background: rgba(39, 174, 96, 0.15); color: #2ecc71; }
+    body.dark .status.error { background: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+    .quick-connect { margin-top: 26px; text-align: center; }
+    .quick-connect-title { font-size: 12px; color: var(--text-light); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px; transition: color 0.4s; }
+    .chip {
+      display: inline-block; padding: 8px 16px; border-radius: 20px;
+      background: #f0f0f0; color: var(--primary); font-size: 13px;
+      margin: 4px; cursor: pointer; transition: all 0.3s;
+    }
+    body.dark .chip { background: #2c2c2c; }
+    .chip:hover { background: var(--primary); color: #fff; }
+    .webview-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 1000; }
+    .webview-header { background: var(--primary); color: white; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .back-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+    .toggle-theme {
+      position: absolute; top: 20px; right: 20px; background: var(--primary); color: #fff;
+      border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 14px;
+    }
+    .toggle-theme:hover { background: var(--primary-dark); }
+    .webview-frame { width: 100%; height: calc(100% - 52px); border: none; }
+  </style>
+</head>
+<body>
+  <button class="toggle-theme" onclick="toggleTheme()">🌙 Dark</button>
+  
+  <div class="container" id="mainContainer">
+    <div class="logo">LB</div>
+    <h1 class="app-title">LABABIL SmartHome</h1>
+    <p class="app-subtitle">Akses Web Server Anda dengan Mudah</p>
+
+    <div class="input-group">
+      <input type="url" id="webAddress" class="input-field" placeholder=" " value="http://">
+      <label class="input-label" for="webAddress">Alamat Web Server</label>
+    </div>
+
+    <button class="btn" onclick="connectToServer()">🔗 Hubungkan ke Server</button>
+    <div class="status" id="status"></div>
+
+    <div class="quick-connect">
+      <div class="quick-connect-title">Quick Connect</div>
+      <div class="chip" onclick="setQuickAddress('http://192.168.1.1')">🌐 Router Local</div>
+      <div class="chip" onclick="setQuickAddress('http://192.168.1.100')">💻 Server Lokal</div>
+      <div class="chip" onclick="setQuickAddress('http://localhost:8080')">🖥️ Localhost</div>
+    </div>
+  </div>
+
+  <div class="webview-container" id="webviewContainer">
+    <div class="webview-header">
+      <div class="webview-title" id="webviewTitle">LABABIL SmartHome</div>
+      <button class="back-btn" onclick="goBack()">⬅️ Kembali</button>
+    </div>
+    <iframe class="webview-frame" id="webviewFrame"></iframe>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js');
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+      const btn = document.querySelector(".toggle-theme");
+      if (document.body.classList.contains("dark")) {
+        btn.textContent = "☀️ Light";
+      } else {
+        btn.textContent = "🌙 Dark";
+      }
+    }
+    function showStatus(msg, isError = false) {
+      const status = document.getElementById('status');
+      status.textContent = msg;
+      status.className = `status ${isError ? 'error' : 'success'}`;
+      status.style.display = 'block';
+      setTimeout(() => { status.style.display = 'none'; }, 3000);
+    }
+    function setQuickAddress(addr) { document.getElementById('webAddress').value = addr; }
+    function isValidUrl(str) { try { new URL(str); return true; } catch { return false; } }
+    function connectToServer() {
+      let url = document.getElementById('webAddress').value.trim();
+      if (!url) return showStatus("Mohon masukkan alamat server", true);
+      if (!url.match(/^https?:\/\//)) url = "http://" + url;
+      if (!isValidUrl(url)) return showStatus("Format alamat tidak valid", true);
+      loadWebsite(url);
+    }
+    function loadWebsite(url) {
+      showStatus("Menghubungkan ke server...");
+      const frame = document.getElementById("webviewFrame");
+      document.getElementById("mainContainer").style.display = "none";
+      document.getElementById("webviewContainer").style.display = "block";
+      frame.src = url;
+      document.getElementById("webviewTitle").textContent = "LABABIL SmartHome - " + url;
+      frame.onload = () => showStatus("Berhasil terhubung ke server");
+      frame.onerror = () => { showStatus("Gagal memuat halaman", true); goBack(); };
+    }
+    function goBack() {
+      document.getElementById("webviewContainer").style.display = "none";
+      document.getElementById("mainContainer").style.display = "block";
+      document.getElementById("webviewFrame").src = "";
+    }
+  </script>
+</body>
+</html>
